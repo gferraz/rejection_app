@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Play() {
   const [askee, setAskee] = useState("");
@@ -22,10 +22,21 @@ export default function Play() {
       status: status, // 'Accepted', 'Rejected', 'Unanswered'
     };
     setHistory(history.concat([request]));
+
     console.log(request);
     return request;
   };
 
+  useEffect(() => {
+    localStorage.setItem("requests", JSON.stringify(history));
+  }, [history]);
+
+  useEffect(() => {
+    const requests = JSON.parse(localStorage.getItem("requests"));
+    if (requests) {
+      setHistory(requests);
+    }
+  }, []);
 
   return (
     <main className="min-h-screen p-24">
@@ -72,7 +83,7 @@ export default function Play() {
       </form>
       <h2 className={`my-2 text-2xl font-semibold`}>History</h2>
 
-      <table classNAme="table-auto">
+      <table className="table-auto">
         <thead>
           <tr>
             <th>Question</th>
