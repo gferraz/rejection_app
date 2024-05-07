@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-let questions = [];
-
 export default function Play() {
   const [askee, setAskee] = useState("");
   const [question, setQuestion] = useState("");
@@ -18,7 +16,7 @@ export default function Play() {
   const add_question = (question, askee, status) => {
     let request = {
       id: history.length, // id of the question so you can get/edit/remove by id
-      timestamp: Date.now(), // output from Date.now()
+      timestamp: new Date(), // output from Date.now()
       question: question, // the ask
       askee: askee, // person asked
       status: status, // 'Accepted', 'Rejected', 'Unanswered'
@@ -26,7 +24,8 @@ export default function Play() {
     setHistory(history.concat([request]));
     console.log(request);
     return request;
-  }
+  };
+
 
   return (
     <main className="min-h-screen p-24">
@@ -87,7 +86,7 @@ export default function Play() {
             <tr key={r.id}>
               <td>{r.question}</td>
               <td>{r.askee}</td>
-              <td>{r.date}</td>
+              <td>{r.timestamp.toLocaleDateString()}</td>
               <td>{r.status}</td>
             </tr>
           ))}
