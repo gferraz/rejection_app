@@ -6,7 +6,7 @@ export default function Play() {
   const [askee, setAskee] = useState("");
   const [question, setQuestion] = useState("");
   const [status, setStatus] = useState("");
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -15,7 +15,7 @@ export default function Play() {
 
   const add_question = (question, askee, status) => {
     let request = {
-      id: history.length, // id of the question so you can get/edit/remove by id
+      id: history ? history.length : 0, // id of the question so you can get/edit/remove by id
       timestamp: new Date(), // output from Date.now()
       question: question, // the ask
       askee: askee, // person asked
@@ -28,13 +28,21 @@ export default function Play() {
   };
 
   useEffect(() => {
-    localStorage.setItem("requests", JSON.stringify(history));
+    if (history) {
+      localStorage.setItem("requests", JSON.stringify(history));
+    }
   }, [history]);
 
   useEffect(() => {
     const requests = JSON.parse(localStorage.getItem("requests"));
     if (requests) {
-      setHistory(requests);
+      const newHistory = requests.map((r) => {
+        r.timestamp = new Date(r.timestamp);
+        return r;
+      });
+      setHistory(newHistory);
+    } else {
+      setHistory([]);
     }
   }, []);
 
@@ -81,8 +89,7 @@ export default function Play() {
           />
         </div>
       </form>
-      <h2 className={`my-2 text-2xl font-semibold`}>History</h2>
-
+      <h2 className={`my-2 text-2xl font-semibold`}>History (Score {calculate_score(history)})</h2>
       <table className="table-auto">
         <thead>
           <tr>
@@ -93,16 +100,32 @@ export default function Play() {
           </tr>
         </thead>
         <tbody>
-          {history.map((r) => (
-            <tr key={r.id}>
-              <td>{r.question}</td>
-              <td>{r.askee}</td>
-              <td>{r.timestamp.toLocaleDateString()}</td>
-              <td>{r.status}</td>
-            </tr>
-          ))}
+          {history &&
+            history.map((r) => (
+              <tr key={r.id}>
+                <td>{r.question}</td>
+                <td>{r.askee}</td>
+                <td>{r.timestamp.toLocaleDateString()}</td>
+                <td>{r.status}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </main>
   );
+}
+
+let SCORE_POINTS = {
+  Unanswered: 0,
+  Accepted: 1,
+  Rejected: 10,
+};
+
+function calculate_score(requests) {
+  let score = 0;
+
+  if (requests) {
+    score = requests.reduce((value, request) => (value + SCORE_POINTS[request.status]), 0);
+  }
+  return score;
 }
