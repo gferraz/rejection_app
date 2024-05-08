@@ -23,7 +23,6 @@ export default function Play() {
     };
     setHistory(history.concat([request]));
 
-    console.log(request);
     return request;
   };
 
@@ -107,6 +106,33 @@ export default function Play() {
                 <td>{r.askee}</td>
                 <td>{r.timestamp.toLocaleDateString()}</td>
                 <td>{r.status}</td>
+                <td>
+                  <button
+                    onClick={(e) => setStatus(e.target.value)}
+                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
+                    font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100
+                    bg-gray-100 text-gray-700 border duration-200 ease-in-out border-gray-600 transition">
+                      Unanswered
+                   </button>
+                </td>
+                <td>
+                  <button
+                    onClick={(e) => setStatus(e.target.value)}
+                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
+                    font-bold cursor-pointer hover:bg-green-700 hover:text-green-100
+                    bg-green-100 text-green-700 border duration-200 ease-in-out border-green-600 transition">
+                      Accepted
+                   </button>
+                </td>
+                <td>
+                  <button
+                    onClick={(e) => setStatus(e.target.value)}
+                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
+                    font-bold cursor-pointer hover:bg-red-700 hover:text-red-100
+                    bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition">
+                      Rejected
+                   </button>
+                </td>
               </tr>
             ))}
         </tbody>
@@ -125,7 +151,7 @@ function calculate_score(requests) {
   let score = 0;
 
   if (requests) {
-    score = requests.reduce((value, request) => (value + SCORE_POINTS[request.status]), 0);
+    score = requests.reduce((value, request) => value + SCORE_POINTS[request.status], 0);
   }
   return score;
 }
