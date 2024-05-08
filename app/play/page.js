@@ -14,47 +14,22 @@ export default function Play() {
   };
 
   const add_question = (question, askee, status) => {
-    // quando você cria uma variável que você não pretende mudar, o ideal é usar "const"
-    // ajuda a evitar que você modifique uma variável que não foi criada para ser mudada sem querer
-    let request = {
+    const request = {
       id: history ? history.length : 0, // id of the question so you can get/edit/remove by id
       timestamp: new Date(),
-      /*
-        no javascript, quando você vai criar um atributo no objeto cuja "key" é igual o nome da variavel que voce já tem, você pode simplificar e digitar uma vez só.
-
-        Aqui você pode colocar:
-
-        const request = {
-          id: history: history.length : 0,
-          timestamp: new Date(),
-          question,
-          askee,
-          status
-        }
-      */
-      question: question,
-      askee: askee,
-      status: status,
+      question,
+      askee,
+      status,
     };
-    /*
-    aqui você pode usar o spread operator pra simplificar:
-    setHistory([...history, request])
-    */
-    setHistory(history.concat([request]));
+
+    setHistory([...history, request]);
     return request;
   };
 
   useEffect(() => {
-    /*
-      pra evitar criar muitos níveis de função e dificultar a legibilidade, é uma boa prática usar a negativa do caso if normal pra evitar usar chaves
+    if (!history) return;
 
-      aqui dá pra ser:
-      if (!history) return
-      localStorage.setItem("requests", JSON.stringify(history));
-    */
-    if (history) {
-      localStorage.setItem("requests", JSON.stringify(history));
-    }
+    localStorage.setItem("requests", JSON.stringify(history));
   }, [history]);
 
   useEffect(() => {
@@ -70,15 +45,13 @@ export default function Play() {
 
     */
     const requests = JSON.parse(localStorage.getItem("requests"));
-    if (requests) {
-      const newHistory = requests.map((r) => {
-        r.timestamp = new Date(r.timestamp);
-        return r;
-      });
-      setHistory(newHistory);
-    } else {
-      setHistory([]);
-    }
+    if (!requests) return setHistory([]);
+
+    const newHistory = requests.map((r) => {
+      r.timestamp = new Date(r.timestamp);
+      return r;
+    });
+    setHistory(newHistory);
   }, []);
 
   return (
@@ -178,27 +151,30 @@ export default function Play() {
                     onClick={(e) => setStatus(e.target.value)}
                     className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
                     font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100
-                    bg-gray-100 text-gray-700 border duration-200 ease-in-out border-gray-600 transition">
-                      Unanswered
-                   </button>
+                    bg-gray-100 text-gray-700 border duration-200 ease-in-out border-gray-600 transition"
+                  >
+                    Unanswered
+                  </button>
                 </td>
                 <td>
                   <button
                     onClick={(e) => setStatus(e.target.value)}
                     className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
                     font-bold cursor-pointer hover:bg-green-700 hover:text-green-100
-                    bg-green-100 text-green-700 border duration-200 ease-in-out border-green-600 transition">
-                      Accepted
-                   </button>
+                    bg-green-100 text-green-700 border duration-200 ease-in-out border-green-600 transition"
+                  >
+                    Accepted
+                  </button>
                 </td>
                 <td>
                   <button
                     onClick={(e) => setStatus(e.target.value)}
                     className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
                     font-bold cursor-pointer hover:bg-red-700 hover:text-red-100
-                    bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition">
-                      Rejected
-                   </button>
+                    bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition"
+                  >
+                    Rejected
+                  </button>
                 </td>
               </tr>
             ))}
@@ -208,24 +184,14 @@ export default function Play() {
   );
 }
 
-// usar const para variáveis que não há intenção de mutação.
-// realmente é uma boa prática botar constantes com tudo maiúsculo :)
-let SCORE_POINTS = {
+const SCORE_POINTS = {
   Unanswered: 0,
   Accepted: 1,
   Rejected: 10,
 };
 
 function calculate_score(requests) {
-  let score = 0;
+  if (!requests) return 0;
 
-  if (requests) {
-    score = requests.reduce((value, request) => value + SCORE_POINTS[request.status], 0);
-  }
-  return score;
+  return requests.reduce((value, request) => value + SCORE_POINTS[request.status], 0);
 }
-
-
-/*
-no geral, tá bem bom o código. Parabéns :)
-*/
