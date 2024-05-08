@@ -14,26 +14,64 @@ export default function Play() {
   };
 
   const add_question = (question, askee, status) => {
+    // quando você cria uma variável que você não pretende mudar, o ideal é usar "const"
+    // ajuda a evitar que você modifique uma variável que não foi criada para ser mudada sem querer
     let request = {
       id: history ? history.length : 0, // id of the question so you can get/edit/remove by id
-      timestamp: new Date(), // output from Date.now()
-      question: question, // the ask
-      askee: askee, // person asked
-      status: status, // 'Accepted', 'Rejected', 'Unanswered'
+      timestamp: new Date(),
+      /*
+        no javascript, quando você vai criar um atributo no objeto cuja "key" é igual o nome da variavel que voce já tem, você pode simplificar e digitar uma vez só.
+
+        Aqui você pode colocar:
+
+        const request = {
+          id: history: history.length : 0,
+          timestamp: new Date(),
+          question,
+          askee,
+          status
+        }
+      */
+      question: question,
+      askee: askee, 
+      status: status,
     };
+    /*
+    aqui você pode usar o spread operator pra simplificar:
+    setHistory([...history, request])
+    */
     setHistory(history.concat([request]));
 
+    // é bom remover os console logs depois que terminou de bugger
     console.log(request);
     return request;
   };
 
   useEffect(() => {
+    /*
+      pra evitar criar muitos níveis de função e dificultar a legibilidade, é uma boa prática usar a negativa do caso if normal pra evitar usar chaves
+
+      aqui dá pra ser:
+      if (!history) return
+      localStorage.setItem("requests", JSON.stringify(history));
+    */
     if (history) {
       localStorage.setItem("requests", JSON.stringify(history));
     }
   }, [history]);
 
   useEffect(() => {
+    /*
+      mesma coisa aqui:
+      if (!requests) return setHistory([])
+      const newHistory = requests.map((r) => {
+      r.timestamp = new Date(r.timestamp);
+      return r;
+      setHistory(newHistory);
+
+      menos linhas e mais fácil de ler
+
+    */
     const requests = JSON.parse(localStorage.getItem("requests"));
     if (requests) {
       const newHistory = requests.map((r) => {
@@ -69,6 +107,37 @@ export default function Play() {
               className="mt-1 p-1 block w-full text-gray-600"
             />
           </label>
+          {/* 
+          Observe que aqui você tem três componentes muito parecidos em que muda muitos poucos atributos. Isso é meio chato de dar manutenção, porque toda hora que você precisar fazer uma modificação
+          em um botão, provavelmente você vai ter que copiar/colar nos outros 2. Triplicando a complexidade de mudanças simples.
+          Você pode usar um array/map pra facilitar:
+
+
+          {
+            [
+              {
+                value: 'unanswered',
+                className: 'text-gray-700'
+              },
+              {
+                value: 'rejected',
+                className: 'text-red-700',
+              },
+              {
+                value: 'accepted',
+                className: 'text-green-700'
+              }
+            ].map((item) => (
+              <input onClick={() => setStatus(item.value)} type="submit" value={item.value} className={classNames('text-sm mt-10 mb-4 mx-2 focus:outline-none px-4 py-2 rounded font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100 bg-gray-100 border duration-200 ease-in-out border-gray-600 transition', item.className)}
+            ))
+          }
+
+          Observe que tem menos código e mais fácil de dar manutenção
+          Nesse caso eu adicionei a biblioteca classNames(https://www.npmjs.com/package/classnames) que fornece algumas utilidades para facilitar a composição de className. Eu criei uma configuração "default" e concatenei com a especificidade de cada butão
+
+
+          Claro, outra solução seria criar um componente em outro arquivo pra facilitar também
+           */}
           <input
             onClick={(e) => setStatus(e.target.value)}
             type="submit"
@@ -115,6 +184,8 @@ export default function Play() {
   );
 }
 
+// usar const para variáveis que não há intenção de mutação.
+// realmente é uma boa prática botar constantes com tudo maiúsculo :)
 let SCORE_POINTS = {
   Unanswered: 0,
   Accepted: 1,
@@ -129,3 +200,8 @@ function calculate_score(requests) {
   }
   return score;
 }
+
+
+/*
+no geral, tá bem bom o código. Parabéns :)
+*/

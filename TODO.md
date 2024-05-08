@@ -20,6 +20,9 @@ You can calculate everything else you need to know by reducing over the list of 
 
 It may be useful to display a running tally of the user's current score. Just remember that the current day's subtotal needs to be recalculated each time an ask is accepted or rejected, so it will be useful to keep the list in an array that you can reduce with each new ask added by the user.
 
+
+! Before going to level 2, I recommend adding "prettier" to the project :)
+
 Level 2:
 
 - refactor to use redux
