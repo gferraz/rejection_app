@@ -1,19 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+
+import { RequestItem } from './request';
 
 export default function Play() {
-  const [askee, setAskee] = useState("");
-  const [question, setQuestion] = useState("");
-  const [status, setStatus] = useState("");
+  const [askee, setAskee] = useState('');
+  const [question, setQuestion] = useState('');
+  const [status, setStatus] = useState('');
   const [history, setHistory] = useState();
 
-  const handleSubmit = (event) => {
+  const addItem = (event) => {
     event.preventDefault();
-    add_question(question, askee, status);
-  };
-
-  const add_question = (question, askee, status) => {
     const request = {
       id: history ? history.length : 0, // id of the question so you can get/edit/remove by id
       timestamp: new Date(),
@@ -26,25 +24,18 @@ export default function Play() {
     return request;
   };
 
+  const removeItem = (id) => {
+    setHistory(history.filter((r) => r.id !== id));
+  };
+
   useEffect(() => {
     if (!history) return;
 
-    localStorage.setItem("requests", JSON.stringify(history));
+    localStorage.setItem('requests', JSON.stringify(history));
   }, [history]);
 
   useEffect(() => {
-    /*
-      mesma coisa aqui:
-      if (!requests) return setHistory([])
-      const newHistory = requests.map((r) => {
-      r.timestamp = new Date(r.timestamp);
-      return r;
-      setHistory(newHistory);
-
-      menos linhas e mais fácil de ler
-
-    */
-    const requests = JSON.parse(localStorage.getItem("requests"));
+    const requests = JSON.parse(localStorage.getItem('requests'));
     if (!requests) return setHistory([]);
 
     const newHistory = requests.map((r) => {
@@ -57,7 +48,7 @@ export default function Play() {
   return (
     <main className="min-h-screen p-24">
       <h2 className={`mb-2 text-2xl font-semibold`}>New Request</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={addItem}>
         <div className="flex">
           <label className="block m-4 w-80">
             <span className="text-gray-300">Request</span>
@@ -77,58 +68,12 @@ export default function Play() {
               className="mt-1 p-1 block w-full text-gray-600"
             />
           </label>
-          {/*
-          Observe que aqui você tem três componentes muito parecidos em que muda muitos poucos atributos. Isso é meio chato de dar manutenção, porque toda hora que você precisar fazer uma modificação
-          em um botão, provavelmente você vai ter que copiar/colar nos outros 2. Triplicando a complexidade de mudanças simples.
-          Você pode usar um array/map pra facilitar:
-
-
-          {
-            [
-              {
-                value: 'unanswered',
-                className: 'text-gray-700'
-              },
-              {
-                value: 'rejected',
-                className: 'text-red-700',
-              },
-              {
-                value: 'accepted',
-                className: 'text-green-700'
-              }
-            ].map((item) => (
-              <input onClick={() => setStatus(item.value)} type="submit" value={item.value} className={classNames('text-sm mt-10 mb-4 mx-2 focus:outline-none px-4 py-2 rounded font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100 bg-gray-100 border duration-200 ease-in-out border-gray-600 transition', item.className)}
-            ))
-          }
-
-          Observe que tem menos código e mais fácil de dar manutenção
-          Nesse caso eu adicionei a biblioteca classNames(https://www.npmjs.com/package/classnames) que fornece algumas utilidades para facilitar a composição de className. Eu criei uma configuração "default" e concatenei com a especificidade de cada butão
-
-
-          Claro, outra solução seria criar um componente em outro arquivo pra facilitar também
-           */}
-          <input
-            onClick={(e) => setStatus(e.target.value)}
-            type="submit"
-            value="Unanswered"
-            className="text-sm mt-10 mb-4 mx-2 focus:outline-none px-4 py-2 rounded font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100 bg-gray-100 text-gray-700 border duration-200 ease-in-out border-gray-600 transition"
-          />
-          <input
-            onClick={(e) => setStatus(e.target.value)}
-            type="submit"
-            value="Rejected"
-            className="text-sm mt-10 mb-4 mx-2 focus:outline-none px-4 py-2 rounded font-bold cursor-pointer hover:bg-red-700 hover:text-red-100 bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition"
-          />
-          <input
-            onClick={(e) => setStatus(e.target.value)}
-            type="submit"
-            value="Accepted"
-            className="text-sm mt-10 mb-4 mx-2 focus:outline-none px-4 py-2 rounded font-bold cursor-pointer hover:bg-green-700 hover:text-green-100 bg-green-100 text-green-700 border duration-200 ease-in-out border-green-600 transition"
-          />
+          <StatusButton status="Unanswered" setState={setStatus} />
+          <StatusButton status="Accepted" setState={setStatus} />
+          <StatusButton status="Rejected" setState={setStatus} />
         </div>
       </form>
-      <h2 className={`my-2 text-2xl font-semibold`}>History (Score {calculate_score(history)})</h2>
+      <h2 className={`my-2 text-2xl font-semibold`}>History (Score {RequestItem.calculate_score(history)})</h2>
       <table className="table-auto">
         <thead>
           <tr>
@@ -136,45 +81,34 @@ export default function Play() {
             <th>Asked to</th>
             <th>Asked at</th>
             <th>Status</th>
+            <th colpan="3">Actions</th>
           </tr>
         </thead>
         <tbody>
           {history &&
             history.map((r) => (
               <tr key={r.id}>
-                <td>{r.question}</td>
-                <td>{r.askee}</td>
-                <td>{r.timestamp.toLocaleDateString()}</td>
-                <td>{r.status}</td>
+                <td class="px-4">{r.question}</td>
+                <td class="px-4">{r.askee}</td>
+                <td class="px-4">{r.timestamp.toLocaleDateString()}</td>
+                <td class="px-4">{r.status}</td>
                 <td>
                   <button
-                    onClick={(e) => setStatus(e.target.value)}
-                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
-                    font-bold cursor-pointer hover:bg-gray-700 hover:text-gray-100
-                    bg-gray-100 text-gray-700 border duration-200 ease-in-out border-gray-600 transition"
-                  >
-                    Unanswered
+                    onClick={(e) => removeItem(r.id)}
+                    className={`text-sm my-4 mx-2 focus:outline-none px-2 py-2 rounded font-bold cursor-pointer
+                              hover:bg-red-700 hover:text-red-100 bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition`}
+                              >
+                    Remove
                   </button>
                 </td>
                 <td>
-                  <button
-                    onClick={(e) => setStatus(e.target.value)}
-                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
-                    font-bold cursor-pointer hover:bg-green-700 hover:text-green-100
-                    bg-green-100 text-green-700 border duration-200 ease-in-out border-green-600 transition"
-                  >
-                    Accepted
-                  </button>
+                  <StatusButton status="Unanswered" setState={(status) => (r.status = status)} />
                 </td>
                 <td>
-                  <button
-                    onClick={(e) => setStatus(e.target.value)}
-                    className="text-sm my-2 mx-2 focus:outline-none px-2 py-2 rounded
-                    font-bold cursor-pointer hover:bg-red-700 hover:text-red-100
-                    bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition"
-                  >
-                    Rejected
-                  </button>
+                  <StatusButton status="Accepted" setState={(status) => (r.status = status)} />
+                </td>
+                <td>
+                  <StatusButton status="Rejected" setState={(status) => (r.status = status)} />
                 </td>
               </tr>
             ))}
@@ -184,14 +118,16 @@ export default function Play() {
   );
 }
 
-const SCORE_POINTS = {
-  Unanswered: 0,
-  Accepted: 1,
-  Rejected: 10,
-};
+function StatusButton({ status, setState }) {
+  const color = { Unanswered: 'gray', Accepted: 'green', Rejected: 'red' }[status];
 
-function calculate_score(requests) {
-  if (!requests) return 0;
-
-  return requests.reduce((value, request) => value + SCORE_POINTS[request.status], 0);
+  return (
+    <button
+      onClick={(e) => setState(status)}
+      className={`text-sm my-4 mx-2 focus:outline-none px-2 py-2 rounded font-bold cursor-pointer
+                hover:bg-${color}-700 hover:text-${color}-100 bg-${color}-100 text-${color}-700 border duration-200 ease-in-out border-${color}-600 transition`}
+    >
+      {status}
+    </button>
+  );
 }
