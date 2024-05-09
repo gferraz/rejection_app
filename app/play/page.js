@@ -28,6 +28,17 @@ export default function Play() {
     setHistory(history.filter((r) => r.id !== id));
   };
 
+  const setRequestStatus = (id, status) => {
+    const requests = structuredClone(history);
+    const index = history.findIndex((r) => r.id === id);
+    const request = requests[index];
+
+    if (!request || request.status === status) return;
+
+    request.status = status;
+    setHistory(requests);
+  };
+
   useEffect(() => {
     if (!history) return;
 
@@ -95,20 +106,20 @@ export default function Play() {
                 <td>
                   <button
                     onClick={(e) => removeItem(r.id)}
-                    className={`text-sm my-4 mx-2 focus:outline-none px-2 py-2 rounded font-bold cursor-pointer
+                    className={`my-4 mx-2 focus:outline-none px-2 py-1 rounded font-bold cursor-pointer
                               hover:bg-red-700 hover:text-red-100 bg-red-100 text-red-700 border duration-200 ease-in-out border-red-600 transition`}
-                              >
-                    Remove
+                  >
+                    ⊗
                   </button>
                 </td>
                 <td>
-                  <StatusButton status="Unanswered" setState={(status) => (r.status = status)} />
+                  <StatusButton status="Unanswered" setState={(status) => setRequestStatus(r.id, 'Unanswered')} />
                 </td>
                 <td>
-                  <StatusButton status="Accepted" setState={(status) => (r.status = status)} />
+                  <StatusButton status="Accepted" setState={(status) => setRequestStatus(r.id, 'Accepted')} />
                 </td>
                 <td>
-                  <StatusButton status="Rejected" setState={(status) => (r.status = status)} />
+                  <StatusButton status="Rejected" setState={(status) => setRequestStatus(r.id, 'Rejected')} />
                 </td>
               </tr>
             ))}
