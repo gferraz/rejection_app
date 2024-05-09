@@ -14,7 +14,7 @@ export default function Play() {
     event.preventDefault();
     const request = {
       id: history ? history.length : 0, // id of the question so you can get/edit/remove by id
-      timestamp: new Date(),
+      timestamp: status === 'Unanswered' ? null : new Date(),
       question,
       askee,
       status,
@@ -36,6 +36,8 @@ export default function Play() {
     if (!request || request.status === status) return;
 
     request.status = status;
+    request.timestamp = status === 'Unanswered' ? null : new Date();
+
     setHistory(requests);
   };
 
@@ -50,7 +52,7 @@ export default function Play() {
     if (!requests) return setHistory([]);
 
     const newHistory = requests.map((r) => {
-      r.timestamp = new Date(r.timestamp);
+      r.timestamp = r.status === 'Unanswered' ? null : new Date(r.timestamp);
       return r;
     });
     setHistory(newHistory);
@@ -90,7 +92,7 @@ export default function Play() {
           <tr>
             <th>Question</th>
             <th>Asked to</th>
-            <th>Asked at</th>
+            <th>Answered at</th>
             <th>Status</th>
             <th colpan="3">Actions</th>
           </tr>
@@ -101,7 +103,7 @@ export default function Play() {
               <tr key={r.id}>
                 <td class="px-4">{r.question}</td>
                 <td class="px-4">{r.askee}</td>
-                <td class="px-4">{r.timestamp.toLocaleDateString()}</td>
+                <td class="px-4">{r.timestamp && r.timestamp.toLocaleDateString()}</td>
                 <td class="px-4">{r.status}</td>
                 <td>
                   <button
