@@ -94,7 +94,7 @@ export default function Play() {
             <th>Asked to</th>
             <th>Answered at</th>
             <th>Status</th>
-            <th colpan="3">Actions</th>
+            <th colspan="4">Actions</th>
           </tr>
         </thead>
         <tbody>
